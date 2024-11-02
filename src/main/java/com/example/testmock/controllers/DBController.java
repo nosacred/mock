@@ -14,8 +14,7 @@ public class DBController {
         Connection connection = null;
         User user = new User();
         String request = "select login, password ,date, email from users\n" +
-                "join mail on login_id =users.login\n" +
-                "where login='" + log + "'";
+                "join mail on login_id =users.login\nwhere login='" + log + "'";
         try {
             connection = DriverManager.getConnection(DBController.URL, DBController.USERNAME, DBController.PASSWORD);
             Statement statement;
