@@ -1,23 +1,28 @@
 package com.example.testmock.controllers;
 
 import com.example.testmock.model.User;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 
-
+@Component
 public class DBController {
     public static final String USERNAME = "postgres";
     public static final String PASSWORD = "postgres";
     public static final String URL = "jdbc:postgresql://10.201.78.17:5432/postgres_docker";
 
-    public static User getUserByLogin(String log) throws SQLException {
+    User getUserByLogin(String log) throws SQLException {
         Connection connection = null;
         User user = new User();
         String request = "select login, password ,date, email from users\n" +
                 "join mail on login_id =users.login\nwhere login='" + log + "'";
+        Statement statement = null;
         try {
-            connection = DriverManager.getConnection(DBController.URL, DBController.USERNAME, DBController.PASSWORD);
-            Statement statement;
+            connection = DriverManager.getConnection(
+                    DBController.URL,
+                    DBController.USERNAME,
+                    DBController.PASSWORD);
+
             statement = connection.createStatement();
             ResultSet result1 = statement.executeQuery(request);
 
@@ -32,6 +37,14 @@ public class DBController {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
             if (connection != null) {
                 try {
                     connection.close();
@@ -46,12 +59,17 @@ public class DBController {
         return user;
     }
 
-    public static int insertUserToDB(User user) throws SQLException {
+    int insertUserToDB(User user) throws SQLException {
         int rowsNum = 0;
-        String request = "insert into users (login, password,date) VALUES(?,?,?) ON CONFLICT (login) DO UPDATE SET password=EXCLUDED.password, date=EXCLUDED.date ;\n" +
-                "insert into mail (login_id,email) VALUES(?,?) ON CONFLICT (login_id) DO UPDATE SET email=EXCLUDED.email ;";
+        String request = "insert into users (login, password,date) VALUES(?,?,?) ON CONFLICT (login) DO UPDATE SET" +
+                " password=EXCLUDED.password, date=EXCLUDED.date ;\n" +
+                "insert into mail (login_id,email) VALUES(?,?) ON CONFLICT (login_id) DO UPDATE SET" +
+                " email=EXCLUDED.email ;";
 
-        try (Connection connection = DriverManager.getConnection(DBController.URL, DBController.USERNAME, DBController.PASSWORD);
+        try (Connection connection = DriverManager.getConnection(
+                DBController.URL,
+                DBController.USERNAME,
+                DBController.PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement(request)
         ) {
 

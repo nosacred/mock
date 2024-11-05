@@ -1,7 +1,8 @@
 package com.example.testmock.controllers;
 
-import jakarta.validation.Valid;
+
 import com.example.testmock.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,8 @@ import java.util.Random;
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
 
+    @Autowired
+    private DBController dbController;
 
     Random random = new Random();
 
@@ -22,9 +25,9 @@ public class RestController {
         User user;
         int delay = random.nextInt(1001) + 1000;
         Thread.sleep(delay);
-        ResponseEntity<String> responseEntity;
+
         try {
-            user = DBController.getUserByLogin(login);
+            user = dbController.getUserByLogin(login);
         } catch (SQLException dbCustomException) {
             return ResponseEntity.status(500).body(dbCustomException.getMessage());
         }
@@ -49,7 +52,7 @@ public class RestController {
                 throw new SQLException("Incorrect request body(Пустые поля в запросе!)");
             }
             User user = new User(data.get("login").trim(), data.get("password").trim(), data.get("email"));
-            DBController.insertUserToDB(user);
+            dbController.insertUserToDB(user);
             responseEntity = ResponseEntity.status(200).body("Пользователь: " + user.toString() + " успешно добавлен");
 
         } catch (SQLException exception) {
@@ -57,15 +60,6 @@ public class RestController {
         }
         return responseEntity;
     }
-
-
-//    @PostMapping(value = "/post", consumes = "application/json", produces = "application/json")
-//    public ResponseEntity<?> sendResponsePost(@Valid @RequestBody User data) throws InterruptedException {
-//
-//        int delay = random.nextInt(1001) + 1000;
-//        Thread.sleep(delay);
-//        return ResponseEntity.ok(data.toString());
-//    }
 
 }
 
