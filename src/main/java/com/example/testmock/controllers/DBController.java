@@ -9,7 +9,7 @@ import java.sql.*;
 public class DBController {
     public static final String USERNAME = "postgres";
     public static final String PASSWORD = "postgres";
-    public static final String URL = "jdbc:postgresql://10.201.78.17:5432/postgres_docker";
+    public static final String URL = "jdbc:postgresql://192.168.1.113:5432/postgres_docker";
 
     User getUserByLogin(String log) throws SQLException {
         Connection connection = null;
